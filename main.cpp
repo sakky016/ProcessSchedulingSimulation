@@ -10,9 +10,20 @@
 using namespace std;
 
 //---------------------------------------------------------------------------------------------------
+// Configurations
+//---------------------------------------------------------------------------------------------------
+//#define USE_RANDOM_JOB_CREATION_SLEEP
+
+//---------------------------------------------------------------------------------------------------
 // Globals
 //---------------------------------------------------------------------------------------------------
-const int JOB_CREATION_SLEEP_MAX = 1000;           // Max time duration (ms) before proceeding to create another job
+const int JOB_CREATION_SLEEP_MAX = 1000;           // Max time duration (ms) before proceeding to 
+                                                   // create another job. This means that before creating
+                                                   // a new job, the system will wait for any value in b/w
+                                                   // 0 to JOB_CREATION_SLEEP_MAX-1 seconds.
+
+const int JOB_CREATION_SLEEP_CONST = 1000;         // Milliseconds before proceeding to create another job
+
 unsigned long long g_totalJobs = 0;
 
 //---------------------------------------------------------------------------------------------------
@@ -36,9 +47,13 @@ void jobCreationThread(ProcessScheduler *scheduler)
         scheduler->addToReadyQueue(j);
         //j->displayJobDetails();
 
+#ifdef USE_RANDOM_JOB_CREATION_SLEEP
         // Wait for some random time duration before proceeding to
         // create another job
         Sleep(rng.generateRandomNumber(JOB_CREATION_SLEEP_MAX));
+#else
+        Sleep(rng.generateRandomNumber(JOB_CREATION_SLEEP_CONST));
+#endif
     }
 }
 
