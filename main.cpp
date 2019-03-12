@@ -10,13 +10,30 @@
 using namespace std;
 
 //---------------------------------------------------------------------------------------------------
-// Configurations
+// Enum
 //---------------------------------------------------------------------------------------------------
-//#define USE_RANDOM_JOB_CREATION_SLEEP
+typedef enum
+{
+    SCHEDULING_FCFS,
+    SCHEDULING_PRIORITY,
+    SCHEDULING_SJF,
+    SCHEDULING_ROUND_ROBIN,
+    SCHEDULING_MULTI_LEVEL_FEEDBACK,
+
+    // This should be last
+    SCHEDULING_MAX
+}schedulingAlgorithm_en;
+
 
 //---------------------------------------------------------------------------------------------------
-// Globals
+// Configurations
 //---------------------------------------------------------------------------------------------------
+// Use random sleep duration for creation thread
+//#define USE_RANDOM_JOB_CREATION_SLEEP
+
+const int SCHEDULING_ALGORITHM = SCHEDULING_FCFS;  // Scheduling algorithm to use. Refer to enum above.
+
+const int STATS_DISPLAY_INTERVAL = 10;             // Seconds to wait before displaying statistics
 const int JOB_CREATION_SLEEP_MAX = 1000;           // Max time duration (ms) before proceeding to 
                                                    // create another job. This means that before creating
                                                    // a new job, the system will wait for any value in b/w
@@ -24,6 +41,10 @@ const int JOB_CREATION_SLEEP_MAX = 1000;           // Max time duration (ms) bef
 
 const int JOB_CREATION_SLEEP_CONST = 1000;         // Milliseconds before proceeding to create another job
 
+
+//---------------------------------------------------------------------------------------------------
+// Globals
+//---------------------------------------------------------------------------------------------------
 unsigned long long g_totalJobs = 0;
 
 //---------------------------------------------------------------------------------------------------
@@ -38,6 +59,8 @@ Job* createJob()
     return job;
 }
 
+// Job creation thread. Creates jobs continuously and adds it to
+// the ready queue of the scheduler.
 void jobCreationThread(ProcessScheduler *scheduler)
 {
     static RandomGenerator rng;
@@ -80,8 +103,39 @@ in the pending job pool list.
 -----------------------------------------------------------------------------------------------------*/
 int main()
 {
-    ProcessScheduler *scheduler = new FirstComeFirstServed("First Come First Served");
+    ProcessScheduler *scheduler = nullptr;
+    switch (SCHEDULING_ALGORITHM)
+    {
+    case SCHEDULING_FCFS:
+        scheduler = new FirstComeFirstServed("First Come First Served");
+        break;
+    case SCHEDULING_PRIORITY:
+        //scheduler = new PriorityScheduling("Priority Scheduling");
+        break;
+    case SCHEDULING_SJF:
+        //scheduler = new ShortestJobFirst("Shortest Job First");
+        break;
+    case SCHEDULING_ROUND_ROBIN:
+        //scheduler = new RoundRobin("Round Robind");
+        break;
+    case SCHEDULING_MULTI_LEVEL_FEEDBACK:
+        //scheduler = new MultiLevelFeedback("Multi Level Feedback");
+        break;
+    default:
+        printf("ERROR: Invalid Scheduling algorithm specified!\n");
+        exit(0);
+    }
     
+#ifdef USE_RANDOM_JOB_CREATION_SLEEP
+    printf("Using random job creation rate\n");
+#else
+    printf("Using job creation rate: %f per second\n", (float)JOB_CREATION_SLEEP_CONST/1000);
+#endif
+
+    // Set stats display interval
+    scheduler->setDisplayInterval(STATS_DISPLAY_INTERVAL);
+    printf("Using stats display interval: %d seconds\n", scheduler->getDisplayInterval());
+
     // Spawn a thread to create jobs randomly
     thread jobCreationThreadId = thread(jobCreationThread, scheduler);
     

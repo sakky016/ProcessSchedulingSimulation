@@ -12,7 +12,7 @@
 //******************************************************************************************
 FirstComeFirstServed::FirstComeFirstServed(string name):ProcessScheduler(name)
 {
-
+    printf("Creating [ %s ] scheduler\n", name.c_str());
 }
 
 //******************************************************************************************

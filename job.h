@@ -43,6 +43,8 @@ private:
     long long               m_tsCreated;         // timestamp value when this job was created.
     long long               m_tsExecutionStart;  // timestamp value when this job got completed.
     long long               m_tsExecutionEnd;    // timestamp value when this job got completed.
+    long long               m_waitingTime;       // Waiting time of this job
+    long long               m_responseTime;      // Response time of this job
     bool                    m_isComplete;        // Determines if job was completed. 
 
 public:
@@ -59,6 +61,8 @@ public:
 
     void displayJobDetails();
     long long getWaitingTime();
+    void setWaitingTime(long long waitingTime);
+    void setResponseTime(long long responseTime);
     long long getResponseTime();
     void markJobAsStartedExecution();
     void markJobAsComplete();

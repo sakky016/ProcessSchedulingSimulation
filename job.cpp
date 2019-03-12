@@ -27,6 +27,8 @@ Job::Job(unsigned long jobId, unsigned int priority)
     m_tsCreated = getCurrentTimestampInMilliseconds();
     m_tsExecutionStart = -1;                                         // Not yet started
     m_tsExecutionEnd = -1;                                           // Not yet completed 
+    m_waitingTime = -1;
+    m_responseTime = -1;
     m_isComplete = false;
 }
 
@@ -47,36 +49,55 @@ Job::~Job()
 //
 // @description             : Get the duration (ms) for which this task has been waiting in ready queue
 //
-// @returns                 : Nothing
+// @returns                 : waiting time in ms.
 //******************************************************************************************
 long long Job::getWaitingTime()
 {
-    if (m_tsExecutionStart != -1)
-    {
-        return (m_tsExecutionStart - m_tsCreated);
-    }
+    // Job not yet complete
+    if (m_waitingTime < 0)
+        printf("*** %s:: Job %lu not yet started\n", __FUNCTION__, m_jobId);
 
-    // Job not yet started.
-    return -1;
+    return m_waitingTime;
 }
 
+//******************************************************************************************
+// @name                    : setWaitingTime
+//
+// @description             : Set waiting time
+//
+// @returns                 : Nothing
+//******************************************************************************************
+void Job::setWaitingTime(long long waitingTime)
+{
+    m_waitingTime = waitingTime;
+}
 
 //******************************************************************************************
 // @name                    : getResponseTime
 //
 // @description             : Get the duration (ms) from work becoming enabled until it is finished
 //
-// @returns                 : Nothing
+// @returns                 : response time in ms.
 //******************************************************************************************
 long long Job::getResponseTime()
 {
-    if (m_isComplete)
-    {
-        return (m_tsExecutionEnd - m_tsCreated);
-    }
-
     // Job not yet complete
-    return -1;
+    if (m_responseTime < 0)
+        printf("*** %s:: Job %lu not yet complete\n", __FUNCTION__, m_jobId);
+    
+    return m_responseTime;
+}
+
+//******************************************************************************************
+// @name                    : setResponseTime
+//
+// @description             : Set response time
+//
+// @returns                 : Nothing
+//******************************************************************************************
+void Job::setResponseTime(long long responseTime)
+{
+    m_responseTime = responseTime;
 }
 
 //******************************************************************************************
@@ -111,6 +132,7 @@ void Job::markJobAsStartedExecution()
 {
     m_state = STATE_RUNNING;
     m_tsExecutionStart = getCurrentTimestampInMilliseconds();
+    setWaitingTime(m_tsExecutionStart - m_tsCreated);
 }
 
 //******************************************************************************************
@@ -126,4 +148,5 @@ void Job::markJobAsComplete()
     m_state = STATE_COMPLETED;
     m_tsExecutionEnd = getCurrentTimestampInMilliseconds();
     m_isComplete = true;
+    setResponseTime(m_tsExecutionEnd - m_tsCreated);
 }

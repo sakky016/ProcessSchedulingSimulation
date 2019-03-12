@@ -47,7 +47,7 @@ class ProcessScheduler
 private:
     mutex                                   m_schedulerMutex;
     long long                               m_tsCreated;                  // timestamp value when this scheduler was created
-
+    int                                     m_displayInterval;
 protected:
     unsigned long long                      m_totalJobsInflow;
     string                                  m_schedulerName;              // name of the scheduling alogorithm used
@@ -67,6 +67,8 @@ public:
 
     virtual bool addToReadyQueue(Job* job);                               // This can be overridden depending on how the algorithm
                                                                           // adds the job to its queue.
+    void setDisplayInterval(int interval);
+    int getDisplayInterval();
     void displayStatsAtInterval(time_t & t1, time_t & t2);
     void displayStats();
 

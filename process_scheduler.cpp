@@ -1,11 +1,6 @@
 #include "process_scheduler.h"
 #include<Windows.h>
 
-//------------------------------------------------------------------------------------------------
-// Globals
-const int STATS_DISPLAY_INTERVAL = 10;            // Seconds to wait before displaying statistics
-//------------------------------------------------------------------------------------------------
-
 //******************************************************************************************
 // @name                    : ProcessScheduler
 //
@@ -17,6 +12,7 @@ ProcessScheduler::ProcessScheduler(string name)
 {
     m_schedulerName = name;
     m_totalJobsInflow = 0;
+    m_displayInterval = 10;          // Default is 10 seconds
     m_tsCreated = getCurrentTimestampInMilliseconds();
 }
 
@@ -85,6 +81,16 @@ bool ProcessScheduler::addToReadyQueue(Job* job)
     return true;
 }
 
+void ProcessScheduler::setDisplayInterval(int interval)
+{
+    m_displayInterval = interval;
+}
+
+int ProcessScheduler::getDisplayInterval()
+{
+    return m_displayInterval;
+}
+
 //******************************************************************************************
 // @name                    : displayStats
 //
@@ -92,7 +98,7 @@ bool ProcessScheduler::addToReadyQueue(Job* job)
 // @param t2                : End timestamp (seconds).
 //
 // @description             : Displays statistics for this Scheduler only at an interval
-//                            as specified by the constant STATS_DISPLAY_INTERVAL.
+//                            as specified by the display interval.
 //
 // @returns                 : Nothing
 //********************************************************************************************
@@ -100,7 +106,7 @@ void ProcessScheduler::displayStatsAtInterval(time_t & t1, time_t & t2)
 {
     // Display job statistics at pre-defined interval
     t2 = time(&t2);
-    if (t2 - t1 >= STATS_DISPLAY_INTERVAL)
+    if (t2 - t1 >= getDisplayInterval())
     {
         displayStats();
         t1 = time(&t1);
@@ -112,7 +118,7 @@ void ProcessScheduler::displayStatsAtInterval(time_t & t1, time_t & t2)
 //
 // @description             : Displays statistics for this Scheduler.
 //
-// @returns                 : Nothing 
+// @returns                 : Nothing m_tsCreated = getCurrentTimestampInMilliseconds();
 //********************************************************************************************
 void ProcessScheduler::displayStats()
 {
@@ -120,12 +126,14 @@ void ProcessScheduler::displayStats()
     printf("+------------------------------------------------------------------------+\n");
     printf("| %-70s |\n", getSchedulerName().c_str());
     printf("+------------------------------------------------------------------------+\n");
+    printf("Time elapsed                            : %lld seconds\n", ((getCurrentTimestampInMilliseconds() - m_tsCreated) / 1000));
+    printf("Total jobs added to ready queue         : %llu\n", m_totalJobsInflow);
     printf("Pending jobs                            : %u\n", m_pendingJobPool.size());
     printf("Completed jobs                          : %u\n", m_completedJobPool.size());
     printf("Job inflow rate                         : %lf per second.\n", getJobInflowRate());
     printf("Throughput                              : %lf per second.\n", getThroughput());
-    printf("Average waiting time                    : %lf ms.\n", getAverageWaitingTime());
-    printf("Average response time                   : %lf ms.\n", getAverageResponseTime());
+    printf("Average waiting time                    : %lf seconds\n", getAverageWaitingTime() / (double)1000);
+    printf("Average response time                   : %lf seconds\n", getAverageResponseTime() / (double)1000);
     printf("+------------------------------------------------------------------------+\n\n");
 }
 
