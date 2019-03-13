@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include "fcfs.h"
+#include "sjf.h"
 #include "job.h"
 #include "process_scheduler.h"
 
@@ -26,20 +27,30 @@ typedef enum
 
 
 //---------------------------------------------------------------------------------------------------
-// Configurations
+// CONFIGURATIONS - Alter to vary simulation results
 //---------------------------------------------------------------------------------------------------
+// Scheduling algorithm to use. Refer to enum 'schedulingAlgorithm_en' above.
+// Implemented algos- SCHEDULING_FCFS, SCHEDULING_SJF
+const int SCHEDULING_ALGORITHM = SCHEDULING_FCFS;
+
+// Number of jobs for which simulation has to be done.
+// use '-1' to create jobs continuously.
+const long int JOBS_TO_CREATE = 1000;
+
 // Use random sleep duration for creation thread
-//#define USE_RANDOM_JOB_CREATION_SLEEP
+const bool USE_RANDOM_JOB_CREATION_SLEEP = false;
 
-const int SCHEDULING_ALGORITHM = SCHEDULING_FCFS;  // Scheduling algorithm to use. Refer to enum above.
+// Seconds to wait before displaying statistics
+const int STATS_DISPLAY_INTERVAL = 10;
 
-const int STATS_DISPLAY_INTERVAL = 10;             // Seconds to wait before displaying statistics
-const int JOB_CREATION_SLEEP_MAX = 1000;           // Max time duration (ms) before proceeding to 
-                                                   // create another job. This means that before creating
-                                                   // a new job, the system will wait for any value in b/w
-                                                   // 0 to JOB_CREATION_SLEEP_MAX-1 seconds.
+// Max time duration (ms) before proceeding to 
+// create another job. This means that before creating
+// a new job, the system will wait for any value in b/w
+// 0 to JOB_CREATION_SLEEP_MAX-1 seconds.
+const int JOB_CREATION_SLEEP_MAX = 1000;
 
-const int JOB_CREATION_SLEEP_CONST = 1000;         // Milliseconds before proceeding to create another job
+// Milliseconds before proceeding to create another job
+const int JOB_CREATION_SLEEP_CONST = 1000;
 
 
 //---------------------------------------------------------------------------------------------------
@@ -51,7 +62,13 @@ unsigned long long g_totalJobs = 0;
 // Functions
 //---------------------------------------------------------------------------------------------------
 
-// Create a random job
+//******************************************************************************************
+// @name                    : createJob
+//
+// @description             : Create a a job with a jobID and random priority.
+//
+// @returns                 : Pointer to created job
+//********************************************************************************************
 Job* createJob()
 {
     static RandomGenerator rng;
@@ -59,25 +76,54 @@ Job* createJob()
     return job;
 }
 
-// Job creation thread. Creates jobs continuously and adds it to
-// the ready queue of the scheduler.
+
+//******************************************************************************************
+// @name                    : jobCreationThread
+//
+// @description             : This thread is spawned from main(). Creates jobs and adds it to
+//                            the ready queue of the scheduler.
+//
+// @returns                 : Nothing
+//********************************************************************************************
 void jobCreationThread(ProcessScheduler *scheduler)
 {
     static RandomGenerator rng;
-    while (1)
+    long int i = 0;
+
+    while (i < JOBS_TO_CREATE)
     {
         Job *j = createJob();
         scheduler->addToReadyQueue(j);
         //j->displayJobDetails();
 
-#ifdef USE_RANDOM_JOB_CREATION_SLEEP
-        // Wait for some random time duration before proceeding to
-        // create another job
-        Sleep(rng.generateRandomNumber(JOB_CREATION_SLEEP_MAX));
-#else
-        Sleep(rng.generateRandomNumber(JOB_CREATION_SLEEP_CONST));
-#endif
+        if (USE_RANDOM_JOB_CREATION_SLEEP)
+        {
+            // Wait for some random time duration before proceeding to
+            // create another job
+            Sleep(rng.generateRandomNumber(JOB_CREATION_SLEEP_MAX));
+        }
+        else
+        {
+            Sleep(rng.generateRandomNumber(JOB_CREATION_SLEEP_CONST));
+        }
+
+        // Do this only if a finite value is specified in configurations
+        if (JOBS_TO_CREATE >= 0)
+        {
+            i++;
+        }
+    } // simulation complete
+
+    // Wait till all the created jobs are complete
+    while (scheduler->getCompletedJobs() < JOBS_TO_CREATE) 
+    {
+        // DO NOTHING
     }
+
+    // Display final statistics
+    scheduler->displayStats();
+    printf("\n\n SIMULATION COMPLETE \n\n");
+
 }
 
 /*-----------------------------------------------------------------------------------------------------
@@ -113,7 +159,7 @@ int main()
         //scheduler = new PriorityScheduling("Priority Scheduling");
         break;
     case SCHEDULING_SJF:
-        //scheduler = new ShortestJobFirst("Shortest Job First");
+        scheduler = new ShortestJobFirst("Shortest Job First");
         break;
     case SCHEDULING_ROUND_ROBIN:
         //scheduler = new RoundRobin("Round Robind");
@@ -126,11 +172,24 @@ int main()
         exit(0);
     }
     
-#ifdef USE_RANDOM_JOB_CREATION_SLEEP
-    printf("Using random job creation rate\n");
-#else
-    printf("Using job creation rate: %f per second\n", (float)JOB_CREATION_SLEEP_CONST/1000);
-#endif
+    // Display jobs being created for this simulation
+    if (JOBS_TO_CREATE >= 0)
+    {
+        printf("Running simulation for %ld jobs\n", JOBS_TO_CREATE);
+    }
+    else
+    {
+        printf("Running simulation jobs being created continuously\n");
+    }
+
+    if (USE_RANDOM_JOB_CREATION_SLEEP)
+    {
+        printf("Using random job creation rate\n");
+    }
+    else
+    {
+        printf("Waiting for %f seconds before creating a new job\n", (float)JOB_CREATION_SLEEP_CONST / 1000);
+    }
 
     // Set stats display interval
     scheduler->setDisplayInterval(STATS_DISPLAY_INTERVAL);

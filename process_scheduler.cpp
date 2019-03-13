@@ -1,5 +1,6 @@
 #include "process_scheduler.h"
 #include<Windows.h>
+#include<assert.h>
 
 //******************************************************************************************
 // @name                    : ProcessScheduler
@@ -158,11 +159,22 @@ double ProcessScheduler::getAverageWaitingTime()
     for (auto it = m_completedJobPool.begin(); it != m_completedJobPool.end(); it++)
     {
         Job *job = it->second;
+        if (totalWaitTime + job->getWaitingTime() < totalWaitTime)
+        {
+            printf("ASSERTION failed: totalWaitTime exceeded limit. %lld, %lld\n", totalWaitTime, job->getWaitingTime());
+            assert(0);
+        }
+
         totalWaitTime += job->getWaitingTime();
     }
 
     return (double)totalWaitTime / m_completedJobPool.size();
 }
+
+//void ProcessScheduler::updateAverageWaitingTime(Job *job)
+//{
+//
+//}
 
 
 //******************************************************************************************
@@ -184,6 +196,13 @@ double ProcessScheduler::getAverageResponseTime()
     for (auto it = m_completedJobPool.begin(); it != m_completedJobPool.end(); it++)
     {
         Job *job = it->second;
+
+        if (totalResponseTime + job->getResponseTime() < totalResponseTime)
+        {
+            printf("ASSERTION failed: totalResponseTime exceeded limit. %lld, %lld\n", totalResponseTime, job->getResponseTime());
+            assert(0);
+        }
+
         totalResponseTime += job->getResponseTime();
     }
 

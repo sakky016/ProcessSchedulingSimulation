@@ -110,14 +110,16 @@ void Job::setResponseTime(long long responseTime)
 void Job::displayJobDetails()
 {
     printf("\n");
-    printf("Job ID          : %lu\n", m_jobId);
-    printf("Priority        : %d\n", m_priority);
-    printf("State           : %d\n", m_state);
-    printf("Time required   : %lld ms.\n", m_timeRequired);
-    printf("Created at      : %lld\n", m_tsCreated);
-    printf("Waiting time    : %lld ms.\n", getWaitingTime());
-    printf("Response time   : %lld ms.\n", getResponseTime());
-    printf("Complete        : %s\n", m_isComplete ? "YES" : "NO");
+    printf("Job ID             : %lu\n", m_jobId);
+    printf("Priority           : %d\n", m_priority);
+    printf("State              : %d\n", m_state);
+    printf("Time required      : %lld ms.\n", m_timeRequired);
+    printf("Created at         : %lld\n", m_tsCreated);
+    printf("Execution started  : %lld\n", m_tsExecutionStart);
+    printf("Execution ended    : %lld\n", m_tsExecutionEnd);
+    printf("Waiting time       : %lld ms.\n", getWaitingTime());
+    printf("Response time      : %lld ms.\n", getResponseTime());
+    printf("Complete           : %s\n", m_isComplete ? "YES" : "NO");
 }
 
 //******************************************************************************************
@@ -149,4 +151,6 @@ void Job::markJobAsComplete()
     m_tsExecutionEnd = getCurrentTimestampInMilliseconds();
     m_isComplete = true;
     setResponseTime(m_tsExecutionEnd - m_tsCreated);
+
+    //displayJobDetails();
 }

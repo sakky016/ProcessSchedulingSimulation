@@ -76,6 +76,8 @@ public:
     double getAverageWaitingTime();
     double getAverageResponseTime();
     double getThroughput();
+
+    size_t getCompletedJobs() { return m_completedJobPool.size(); }
 };
 
 #endif
