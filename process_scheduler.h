@@ -34,10 +34,11 @@ using namespace std;
 //
 // ProcessScheduler class implements the base class functionality of a short term scheduler (also known
 // as CPU Scheduler). It is an abstract class. You need to inherit and create your own scheduling algorithm.
-// It implements 2 pools:
-// 1) Pending list - Whenver a new task is created and added to the ready queue, it gets stored
-//                   in this list. Task is picked up for execution from this list.
-// 2) Complete map - This stores all the jobs that were completed.
+// 1) Ready Queue-   All the created jobs are added to the Ready Queue. Whenever the scheduler starts work on a job, it 
+//                   moves all the tasks present in the Ready queue to pending pool list.
+// 2) Pending list - Jobs that are to be executed are present in this pool. If any modification is
+//                   is required before execution, then it is done in this pool.
+// 3) Complete map - This stores all the jobs that were completed.
 //
 // It also has APIs for monitoring important parameters of a process scheduling. 
 // 
@@ -45,12 +46,14 @@ using namespace std;
 class ProcessScheduler
 {
 private:
-    mutex                                   m_schedulerMutex;
     long long                               m_tsCreated;                  // timestamp value when this scheduler was created
     int                                     m_displayInterval;
+
 protected:
+    mutex                                   m_schedulerMutex;
     unsigned long long                      m_totalJobsInflow;
     string                                  m_schedulerName;              // name of the scheduling alogorithm used
+    list<Job*>                              m_readyJobPool  ;             // List of jobs currently present in Ready queue
     list<Job*>                              m_pendingJobPool;             // List of all the pending jobs
     unordered_map<unsigned long, Job*>      m_completedJobPool;           // Using map as this can be huge.
 
@@ -69,10 +72,12 @@ public:
                                                                           // adds the job to its queue.
     void setDisplayInterval(int interval);
     int getDisplayInterval();
+
     void displayStatsAtInterval(time_t & t1, time_t & t2);
     void displayStats();
 
     double getJobInflowRate();
+    double getAverageTimeRequired();
     double getAverageWaitingTime();
     double getAverageResponseTime();
     double getThroughput();

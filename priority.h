@@ -1,5 +1,5 @@
-#ifndef _SJF_H_
-#define _SJF_H_
+#ifndef _PRIORITY_SCHEDULING_H_
+#define _PRIORITY_SCHEDULING_H_
 
 #include "process_scheduler.h"
 #include<set>
@@ -8,13 +8,13 @@
 
 using namespace std;
 
-class ShortestJobFirst : public ProcessScheduler
+class PriorityScheduling : public ProcessScheduler
 {
 private:
 
 public:
-    ShortestJobFirst(string name);
-    ~ShortestJobFirst();
+    PriorityScheduling(string name);
+    ~PriorityScheduling();
     void setSchedulerName(string name);
     void ProcessJobs();
 };

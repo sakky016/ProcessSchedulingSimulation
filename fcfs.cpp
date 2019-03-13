@@ -57,8 +57,17 @@ void FirstComeFirstServed::ProcessJobs()
     // Process jobs in pending queue continuously
     while (1)
     {
+        // Move all the jobs in ready queue to pending job pool. Thread synchronization
+        // is required as m_readyJobPool might be continuously being updated by the
+        // Job creation thread.
+        m_schedulerMutex.lock();
+        m_pendingJobPool.splice(m_pendingJobPool.end(), m_readyJobPool);
+        m_schedulerMutex.unlock();
+
         if (m_pendingJobPool.size())
         {
+            displayStatsAtInterval(t1, t2);
+
             // Iterate through all the jobs in the list. Process it on
             // a first-come first-serve basis
             auto it = m_pendingJobPool.begin();
@@ -84,9 +93,7 @@ void FirstComeFirstServed::ProcessJobs()
                     // Increment it.
                     it++;
                 }
-
-                displayStatsAtInterval(t1, t2);
-            }
+            }// Reached end of Pending Job pool
         }
     }
 }

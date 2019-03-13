@@ -52,6 +52,7 @@ public:
     ~Job();
 
     unsigned long getJobId() {return m_jobId;}
+    unsigned int getJobPriority() { return m_priority; }
 
     jobState_en getJobState() { return m_state;}
     void setJobState(jobState_en state) { m_state = state; }

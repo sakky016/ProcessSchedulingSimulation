@@ -5,6 +5,7 @@
 
 #include "fcfs.h"
 #include "sjf.h"
+#include "priority.h"
 #include "job.h"
 #include "process_scheduler.h"
 
@@ -29,8 +30,9 @@ typedef enum
 //---------------------------------------------------------------------------------------------------
 // CONFIGURATIONS - Alter to vary simulation results
 //---------------------------------------------------------------------------------------------------
+
 // Scheduling algorithm to use. Refer to enum 'schedulingAlgorithm_en' above.
-// Implemented algos- SCHEDULING_FCFS, SCHEDULING_SJF
+// Implemented algos- SCHEDULING_FCFS, SCHEDULING_SJF, SCHEDULING_PRIORITY
 const int SCHEDULING_ALGORITHM = SCHEDULING_FCFS;
 
 // Number of jobs for which simulation has to be done.
@@ -156,7 +158,7 @@ int main()
         scheduler = new FirstComeFirstServed("First Come First Served");
         break;
     case SCHEDULING_PRIORITY:
-        //scheduler = new PriorityScheduling("Priority Scheduling");
+        scheduler = new PriorityScheduling("Priority Scheduling");
         break;
     case SCHEDULING_SJF:
         scheduler = new ShortestJobFirst("Shortest Job First");

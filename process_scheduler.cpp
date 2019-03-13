@@ -71,12 +71,7 @@ string ProcessScheduler::getSchedulerName()
 //********************************************************************************************
 bool ProcessScheduler::addToReadyQueue(Job* job)
 {
-    // This is required because this API is being called 
-    // by job creation thread. This is to synchronize the 
-    // operation of adding a job to queue
-    lock_guard<std::mutex> lockGuardObject(m_schedulerMutex);
-
-    m_pendingJobPool.push_back(job);
+    m_readyJobPool.push_back(job);
     m_totalJobsInflow++;
 
     return true;
@@ -119,7 +114,7 @@ void ProcessScheduler::displayStatsAtInterval(time_t & t1, time_t & t2)
 //
 // @description             : Displays statistics for this Scheduler.
 //
-// @returns                 : Nothing m_tsCreated = getCurrentTimestampInMilliseconds();
+// @returns                 : Nothing 
 //********************************************************************************************
 void ProcessScheduler::displayStats()
 {
@@ -132,9 +127,10 @@ void ProcessScheduler::displayStats()
     printf("Pending jobs                            : %u\n", m_pendingJobPool.size());
     printf("Completed jobs                          : %u\n", m_completedJobPool.size());
     printf("Job inflow rate                         : %lf per second.\n", getJobInflowRate());
+    printf("Avg time required by job to complete    : %lf ms.\n", getAverageTimeRequired());
+    printf("Average waiting time                    : %lf ms.\n", getAverageWaitingTime());// / (double)1000);
+    printf("Average response time                   : %lf ms.\n", getAverageResponseTime());// / (double)1000);
     printf("Throughput                              : %lf per second.\n", getThroughput());
-    printf("Average waiting time                    : %lf seconds\n", getAverageWaitingTime() / (double)1000);
-    printf("Average response time                   : %lf seconds\n", getAverageResponseTime() / (double)1000);
     printf("+------------------------------------------------------------------------+\n\n");
 }
 
@@ -171,10 +167,36 @@ double ProcessScheduler::getAverageWaitingTime()
     return (double)totalWaitTime / m_completedJobPool.size();
 }
 
-//void ProcessScheduler::updateAverageWaitingTime(Job *job)
-//{
+//******************************************************************************************
+// @name                    : getAverageTimeRequired
 //
-//}
+// @description             : Get average time required (in ms.) of all the jobs that have completed
+//
+// @returns                 : AverageTimeRequired
+//********************************************************************************************
+double ProcessScheduler::getAverageTimeRequired()
+{
+    if (m_completedJobPool.size() == 0)
+    {
+        return -1;
+    }
+
+    long long totalTimeRequired = 0;
+    for (auto it = m_completedJobPool.begin(); it != m_completedJobPool.end(); it++)
+    {
+        Job *job = it->second;
+
+        if (totalTimeRequired + job->getJobTimeRequired() < totalTimeRequired)
+        {
+            printf("ASSERTION failed: totalTimeRequired exceeded limit. %lld, %lld\n", totalTimeRequired, job->getJobTimeRequired());
+            assert(0);
+        }
+
+        totalTimeRequired += job->getJobTimeRequired();
+    }
+
+    return (double)totalTimeRequired / m_completedJobPool.size();
+}
 
 
 //******************************************************************************************
