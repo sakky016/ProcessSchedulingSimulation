@@ -18,7 +18,7 @@ Show details of job running status
 Use random sleep duration for creation thread
 >> const bool USE_RANDOM_JOB_CREATION_SLEEP = false;
 
-Seconds to wait before displaying statistics
+Seconds to wait before displaying statistics. Use -1 to display the stats only at the end of simulation. Be careful though, if the simulation is run without a finite number of jobs, no stats would be shown.
 >> const int STATS_DISPLAY_INTERVAL = 10;
 
 Max time duration (ms) before proceeding to create another job. This means that before creating a new job, the system will wait for any value in b/w 0 to JOB_CREATION_SLEEP_MAX-1 seconds.
