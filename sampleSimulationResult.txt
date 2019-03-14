@@ -1,0 +1,173 @@
+Simulating all the available scheduling algorithms...
+
+Creating [ First Come First Served ] scheduler
+
++------------------------------------------------------------------------+
+| SIMULATION #1: First Come First Served
++------------------------------------------------------------------------+
+Started: Thu Mar 14 15:43:06 2019
+
+Running simulation for 1000 jobs
+Using Response Time threshold: 2
+Waiting for 1.000000 second(s) before creating a new job
+Scheduler stats will be shown at the end of the simulation.
+Running simulation...
+
+
++------------------------------------------------------------------------+
+| First Come First Served                                                |
++------------------------------------------------------------------------+
+Time elapsed                            : 503 seconds
+Total jobs added to ready queue         : 1000
+Pending jobs                            : 0
+Completed jobs                          : 1000
+Job inflow rate                         : 1.984986 per second.
+Avg time required by job to complete    : 496.761000 ms.
+Average waiting time                    : 6141.524000 ms.
+Average response time                   : 6638.781000 ms.
+Response threshold exceeded for         : 92.50 % jobs
+Throughput                              : 1.984982 per second.
++------------------------------------------------------------------------+
+
+Terminating scheduler [ First Come First Served ]
+Ended: Thu Mar 14 15:51:30 2019
+
+** SIMULATION COMPLETE **
+
+Creating [ Priority Scheduling ] scheduler
+
++------------------------------------------------------------------------+
+| SIMULATION #2: Priority Scheduling
++------------------------------------------------------------------------+
+Started: Thu Mar 14 15:51:30 2019
+
+Running simulation for 1000 jobs
+Using Response Time threshold: 2
+Waiting for 1.000000 second(s) before creating a new job
+Scheduler stats will be shown at the end of the simulation.
+Running simulation...
+
+
++------------------------------------------------------------------------+
+| Priority Scheduling                                                    |
++------------------------------------------------------------------------+
+Time elapsed                            : 516 seconds
+Total jobs added to ready queue         : 1000
+Pending jobs                            : 0
+Completed jobs                          : 1000
+Job inflow rate                         : 1.937271 per second.
+Avg time required by job to complete    : 514.009000 ms.
+Average waiting time                    : 16701.864000 ms.
+Average response time                   : 17216.385000 ms.
+Response threshold exceeded for         : 97.40 % jobs
+Throughput                              : 1.937271 per second.
++------------------------------------------------------------------------+
+
+Terminating scheduler [ Priority Scheduling ]
+Ended: Thu Mar 14 16:00:06 2019
+
+** SIMULATION COMPLETE **
+
+Creating [ Priority Scheduling with Ageing ] scheduler
+
++------------------------------------------------------------------------+
+| SIMULATION #3: Priority Scheduling with Ageing
++------------------------------------------------------------------------+
+Started: Thu Mar 14 16:00:06 2019
+
+Running simulation for 1000 jobs
+Using Response Time threshold: 2
+Waiting for 1.000000 second(s) before creating a new job
+Scheduler stats will be shown at the end of the simulation.
+Running simulation...
+
+
++------------------------------------------------------------------------+
+| Priority Scheduling with Ageing                                        |
++------------------------------------------------------------------------+
+Time elapsed                            : 516 seconds
+Total jobs added to ready queue         : 1000
+Pending jobs                            : 0
+Completed jobs                          : 1000
+Job inflow rate                         : 1.937297 per second.
+Avg time required by job to complete    : 514.009000 ms.
+Average waiting time                    : 16698.667000 ms.
+Average response time                   : 17213.188000 ms.
+Response threshold exceeded for         : 97.40 % jobs
+Throughput                              : 1.937286 per second.
++------------------------------------------------------------------------+
+
+Terminating scheduler [ Priority Scheduling with Ageing ]
+Ended: Thu Mar 14 16:08:42 2019
+
+** SIMULATION COMPLETE **
+
+Creating [ Shortest Job First ] scheduler
+
++------------------------------------------------------------------------+
+| SIMULATION #4: Shortest Job First
++------------------------------------------------------------------------+
+Started: Thu Mar 14 16:08:42 2019
+
+Running simulation for 1000 jobs
+Using Response Time threshold: 2
+Waiting for 1.000000 second(s) before creating a new job
+Scheduler stats will be shown at the end of the simulation.
+Running simulation...
+
+
++------------------------------------------------------------------------+
+| Shortest Job First                                                     |
++------------------------------------------------------------------------+
+Time elapsed                            : 516 seconds
+Total jobs added to ready queue         : 1000
+Pending jobs                            : 0
+Completed jobs                          : 1000
+Job inflow rate                         : 1.937350 per second.
+Avg time required by job to complete    : 514.009000 ms.
+Average waiting time                    : 13972.344000 ms.
+Average response time                   : 14486.856000 ms.
+Response threshold exceeded for         : 98.20 % jobs
+Throughput                              : 1.937342 per second.
++------------------------------------------------------------------------+
+
+Terminating scheduler [ Shortest Job First ]
+Ended: Thu Mar 14 16:17:18 2019
+
+** SIMULATION COMPLETE **
+
+Creating [ Round Robin ] scheduler with time quantum: 500 ms.
+
++------------------------------------------------------------------------+
+| SIMULATION #5: Round Robin
++------------------------------------------------------------------------+
+Started: Thu Mar 14 16:17:18 2019
+
+Running simulation for 1000 jobs
+Using Response Time threshold: 2
+Waiting for 1.000000 second(s) before creating a new job
+Scheduler stats will be shown at the end of the simulation.
+Running simulation...
+
+
++------------------------------------------------------------------------+
+| Round Robin                                                            |
++------------------------------------------------------------------------+
+Time elapsed                            : 516 seconds
+Total jobs added to ready queue         : 1000
+Pending jobs                            : 0
+Completed jobs                          : 1000
+Job inflow rate                         : 1.936101 per second.
+Avg time required by job to complete    : 514.009000 ms.
+Average waiting time                    : 15182.110000 ms.
+Average response time                   : 19157.308000 ms.
+Response threshold exceeded for         : 98.40 % jobs
+Throughput                              : 1.936093 per second.
++------------------------------------------------------------------------+
+
+Terminating scheduler [ Round Robin ]
+Ended: Thu Mar 14 16:25:55 2019
+
+** SIMULATION COMPLETE **
+
+**** Completed 5 simulation(s)
