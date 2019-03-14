@@ -1,6 +1,8 @@
 # Process Scheduling Simulation
 
 # CONFIGURATIONS - Alter to vary simulation results
+Simulate all the algorithms.
+>> const bool SIMULATE_ALL_SCHEDULING_ALGORITHMS = true;
 
 Scheduling algorithm to use. Implemented algos- 
 SCHEDULING_FCFS, SCHEDULING_SJF, SCHEDULING_PRIORITY, SCHEDULING_ROUND_ROBIN
