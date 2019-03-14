@@ -18,7 +18,7 @@ long long getCurrentTimestampInMilliseconds()
 //
 // @returns                 : Nothing
 //******************************************************************************************
-Job::Job(bool showJobStatus, unsigned long jobId, unsigned int priority)
+Job::Job(bool showJobStatus, unsigned long jobId, unsigned int priority, int responseTimeThreshold)
 {
     m_showJobStatus = showJobStatus;
     m_jobId = jobId;
@@ -31,6 +31,7 @@ Job::Job(bool showJobStatus, unsigned long jobId, unsigned int priority)
     m_tsExecutionEnd = -1;                                           // Not yet completed 
     m_waitingTime = -1;
     m_responseTime = -1;
+    m_responseTimeThreshold = responseTimeThreshold;
 }
 
 //******************************************************************************************
@@ -152,6 +153,7 @@ void Job::displayJobDetails()
     printf("Execution ended    : %lld\n", m_tsExecutionEnd);
     printf("Waiting time       : %lld ms.\n", getWaitingTime());
     printf("Response time      : %lld ms.\n", getResponseTime());
+    printf("Reached RT thrshold: %s\n", isResponseThresholdReached() ? "YES" : "NO");
     printf("Complete           : %s\n", isJobComplete() ? "YES" : "NO");
 }
 
@@ -222,6 +224,23 @@ void Job::markJobAsComplete()
     if (isDebugEnabled())
     {
         printf("Job %lu completed\n", m_jobId);
-        //displayJobDetails();
+        displayJobDetails();
     }
+}
+
+//******************************************************************************************
+// @name                    : isThresholdReached
+//
+// @description             : Waiting Time Threshold- This parameter identifies the jobs 
+//                            whose response time period exceeds the permissible value in comparison 
+//                            to its time required for completion. So for instance if a job 
+//                            requires 200ms. to complete and if the response time
+//                            threshold is 2, then response time threshold for this job is 400ms.
+//
+// @returns                 : true if response time threshold is reached, 
+//                            false otherwise
+//******************************************************************************************
+bool Job::isResponseThresholdReached()
+{
+    return (m_responseTime >= (m_responseTimeThreshold * m_timeRequired));
 }

@@ -148,6 +148,7 @@ void ProcessScheduler::displayStats()
     printf("Avg time required by job to complete    : %lf ms.\n", getAverageTimeRequired());
     printf("Average waiting time                    : %lf ms.\n", getAverageWaitingTime());// / (double)1000);
     printf("Average response time                   : %lf ms.\n", getAverageResponseTime());// / (double)1000);
+    printf("Response threshold exceeded for         : %.2lf %% jobs\n", getResponseThresholdExceededJobs());
     printf("Throughput                              : %lf per second.\n", getThroughput());
     printf("+------------------------------------------------------------------------+\n\n");
 }
@@ -360,4 +361,28 @@ void ProcessScheduler::setSimulationComplete(bool val)
     m_schedulerMutex.lock();
     m_simulationComplete = val; 
     m_schedulerMutex.unlock();
+}
+
+//******************************************************************************************
+// @name                    : getResponseThresholdExceededJobs
+//
+// @description             : Gets the percentage of completed jobs whose response time
+//                            exceeded the threshold value.
+//
+// @returns                 : %age of jobs whose response time exceeded threshold.
+//********************************************************************************************
+double ProcessScheduler::getResponseThresholdExceededJobs()
+{
+    long long countExceededResponseTimes = 0;
+    for (auto it = m_completedJobPool.begin(); it != m_completedJobPool.end(); it++)
+    {
+        Job *job = it->second;
+
+        if (job->isResponseThresholdReached())
+        {
+            countExceededResponseTimes++;
+        }
+    }
+
+    return ((double)countExceededResponseTimes / m_completedJobPool.size()) * 100;
 }

@@ -36,21 +36,22 @@ typedef enum
 class Job
 {
 private:
-    bool                    m_showJobStatus;     // Show details of job running status
-    mutex                   m_jobMutex;          // Mutex for Job class
-    unsigned long           m_jobId;             // Unique Job ID
-    unsigned int            m_priority;          // Priority of this job, lower is highest priority
-    jobState_en             m_state;             // Current state of the job
-    long long               m_timeRequired;      // Time required (in ms) by this job to complete.
-    long long               m_timeServed;        // Time (in ms) for which this job has executed.
-    long long               m_tsCreated;         // timestamp value when this job was created.
-    long long               m_tsExecutionStart;  // timestamp value when this job got completed.
-    long long               m_tsExecutionEnd;    // timestamp value when this job got completed.
-    long long               m_waitingTime;       // Waiting time of this job
-    long long               m_responseTime;      // Response time of this job
+    bool                    m_showJobStatus;          // Show details of job running status
+    mutex                   m_jobMutex;               // Mutex for Job class
+    unsigned long           m_jobId;                  // Unique Job ID
+    unsigned int            m_priority;               // Priority of this job, lower is highest priority
+    jobState_en             m_state;                  // Current state of the job
+    long long               m_timeRequired;           // Time required (in ms) by this job to complete.
+    long long               m_timeServed;             // Time (in ms) for which this job has executed.
+    long long               m_tsCreated;              // timestamp value when this job was created.
+    long long               m_tsExecutionStart;       // timestamp value when this job got completed.
+    long long               m_tsExecutionEnd;         // timestamp value when this job got completed.
+    long long               m_waitingTime;            // Waiting time of this job
+    long long               m_responseTime;           // Response time of this job
+    int                     m_responseTimeThreshold;  // Threshold for job response time
 
 public:
-    Job(bool showJobStatus, unsigned long jobId, unsigned int priority);
+    Job(bool showJobStatus, unsigned long jobId, unsigned int priority, int responseTimeThreshold);
     ~Job();
 
     bool isDebugEnabled() { return m_showJobStatus; }
@@ -67,6 +68,7 @@ public:
     void setJobTimeRequired(long long timeRequired) { m_timeRequired = timeRequired; }
 
     bool isJobComplete() { return (m_state == STATE_COMPLETED); }
+    bool isResponseThresholdReached();
 
     void displayJobDetails();
     long long getWaitingTime();

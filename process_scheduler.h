@@ -87,6 +87,7 @@ public:
     double getThroughput();
 
     size_t getCompletedJobs() { return m_completedJobPool.size(); }
+    double getResponseThresholdExceededJobs();
 };
 
 #endif

@@ -46,6 +46,12 @@ const int SCHEDULING_ALGORITHM = SCHEDULING_PRIORITY;
 // time quantum again and return back to process this job again.
 const long long TIME_QUANTUM = 500;
 
+// This parameter identifies the jobs whose response time period exceeds the 
+// permissible value in comparison to its time required for completion. So for
+// instance if a job requires 200ms. to complete and if the response time
+// threshold is 2, then response time threshold for this job is 400ms.
+const int RESPONSE_TIME_THRESHOLD = 2; 
+
 // Number of jobs for which simulation has to be done.
 // use '-1' to create jobs continuously.
 const long int JOBS_TO_CREATE = 1000;
@@ -91,7 +97,9 @@ unsigned long long g_totalJobs = 0;
 Job* createJob()
 {
     static RandomGenerator rng;
-    Job *job = new Job(SHOW_JOB_STATUS, ++g_totalJobs, rng.generateRandomNumber(JOB_PRIORITY_LOWEST));
+    Job *job = new Job(SHOW_JOB_STATUS, ++g_totalJobs, 
+                       rng.generateRandomNumber(JOB_PRIORITY_LOWEST), RESPONSE_TIME_THRESHOLD);
+    
     return job;
 }
 
@@ -231,6 +239,8 @@ void doSimulation(ProcessScheduler *scheduler, int simulationIndex)
     {
         printf("Running simulation jobs being created continuously\n");
     }
+
+    printf("Using Response Time threshold: %d\n", RESPONSE_TIME_THRESHOLD);
 
     if (USE_RANDOM_JOB_CREATION_SLEEP)
     {
