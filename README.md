@@ -11,6 +11,9 @@ SCHEDULING_FCFS, SCHEDULING_SJF, SCHEDULING_PRIORITY, SCHEDULING_ROUND_ROBIN
 Time quantum (in milliseconds) to be used. This is used in case of Round-Robin scheduling algorithm. This is the maximum time window a job will be allocated for execution. If the job completes in this duration, then the next job is processed. Otherwise, the job is paused and its state is saved. The scheduler will process other jobs for this time quantum again and return back to process this job again.
 >> const long long TIME_QUANTUM = 500;
 
+This parameter identifies the jobs whose response time period exceeds the permissible value in comparison to its time required for completion. So for instance if a job requires 200ms. to complete and if the response time threshold is 2, then response time threshold for this job is 400ms.
+>> const int RESPONSE_TIME_THRESHOLD = 2; 
+
 Number of jobs for which simulation has to be done. Use '-1' to create jobs continuously.
 >> const long int JOBS_TO_CREATE = 1000;
 
