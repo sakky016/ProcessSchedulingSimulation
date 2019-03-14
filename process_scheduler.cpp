@@ -12,6 +12,7 @@
 ProcessScheduler::ProcessScheduler(string name)
 {
     m_schedulerName = name;
+    m_simulationComplete = false;
     m_totalJobsInflow = 0;
     m_displayInterval = 10;          // Default is 10 seconds
     m_tsCreated = getCurrentTimestampInMilliseconds();
@@ -27,6 +28,15 @@ ProcessScheduler::ProcessScheduler(string name)
 //******************************************************************************************
 ProcessScheduler::~ProcessScheduler()
 {
+    printf("Terminating scheduler [ %s ]\n", getSchedulerName().c_str());
+
+    // Clear memory allocated to job object in ready queue
+    for (auto it = m_readyJobPool.begin(); it != m_readyJobPool.end(); it++)
+    {
+        Job *job = *it;
+        delete job;
+    }
+
     // Clear memory allocated to job object in Pending pool
     for (auto it = m_pendingJobPool.begin(); it != m_pendingJobPool.end(); it++)
     {
@@ -41,6 +51,7 @@ ProcessScheduler::~ProcessScheduler()
         delete job;
     }
 
+    m_readyJobPool.clear();
     m_pendingJobPool.clear();
     m_completedJobPool.clear();
 }
@@ -94,12 +105,19 @@ int ProcessScheduler::getDisplayInterval()
 // @param t2                : End timestamp (seconds).
 //
 // @description             : Displays statistics for this Scheduler only at an interval
-//                            as specified by the display interval.
+//                            as specified by the display interval. No stats will be displayed
+//                            if the interval is < 0.
 //
 // @returns                 : Nothing
 //********************************************************************************************
 void ProcessScheduler::displayStatsAtInterval(time_t & t1, time_t & t2)
 {
+    if (getDisplayInterval() < 0)
+    {
+        // Do not display stats
+        return;
+    }
+
     // Display job statistics at pre-defined interval
     t2 = time(&t2);
     if (t2 - t1 >= getDisplayInterval())
@@ -318,10 +336,28 @@ list<Job*>::iterator ProcessScheduler::JobComplete(Job *job)
 //
 // @param job               : Job to execute
 //
-// @returns                 : true on success, false otherwise
+// @returns                 : true on job completion, 
+//                            false otherwise
 //********************************************************************************************
 bool ProcessScheduler::DoJob(Job *job)
 {
-    Sleep(job->getJobTimeRequired());
+    Sleep(job->getJobTimeRemaining());
     return true;
+}
+
+//******************************************************************************************
+// @name                    : setSimulationComplete
+//
+// @description             : Marks end of simulation. This is used in ProcessJobs() function
+//                            to check if simulation has been terminated.
+//
+// @param val               : value
+//
+// @returns                 : Nothing
+//********************************************************************************************
+void ProcessScheduler::setSimulationComplete(bool val)
+{
+    m_schedulerMutex.lock();
+    m_simulationComplete = val; 
+    m_schedulerMutex.unlock();
 }

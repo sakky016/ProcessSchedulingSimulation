@@ -18,18 +18,19 @@ long long getCurrentTimestampInMilliseconds()
 //
 // @returns                 : Nothing
 //******************************************************************************************
-Job::Job(unsigned long jobId, unsigned int priority)
+Job::Job(bool showJobStatus, unsigned long jobId, unsigned int priority)
 {
+    m_showJobStatus = showJobStatus;
     m_jobId = jobId;
     m_priority = priority;
     m_state = STATE_READY;
     m_timeRequired = rng.generateRandomNumber(MAX_TIME_REQUIRED);    // Don't know how this would be estimated in an actual run
+    m_timeServed = 0;                                                // Job has not yet started execution
     m_tsCreated = getCurrentTimestampInMilliseconds();
     m_tsExecutionStart = -1;                                         // Not yet started
     m_tsExecutionEnd = -1;                                           // Not yet completed 
     m_waitingTime = -1;
     m_responseTime = -1;
-    m_isComplete = false;
 }
 
 //******************************************************************************************
@@ -42,6 +43,37 @@ Job::Job(unsigned long jobId, unsigned int priority)
 Job::~Job()
 {
 
+}
+
+//******************************************************************************************
+// @name                    : getJobTimeRemaining
+//
+// @description             : Calculates the time required to complete this job. The job
+//                            might have been paused earlier several times (e.g- in case of
+//                            Round Robin Scheduling algorithm), so this needs to take into 
+//                            account the total time served in running this task.
+//
+// @returns                 : Time required to complete this job (in milli seconds)
+//******************************************************************************************
+long long Job::getJobTimeRemaining()
+{ 
+    return (m_timeRequired - m_timeServed); 
+}
+
+//******************************************************************************************
+// @name                    : getJobTimeRequired
+//
+// @description             : Fetches the time it will take for this job to get completed
+//                            in 1 go. This is different from getJobTimeRemaining() as it
+//                            accounts for Paused jobs as well. This will give the time
+//                            required as per the initial creation value. This is used
+//                            for displaying statistics.
+//
+// @returns                 : Time required
+//******************************************************************************************
+long long Job::getJobTimeRequired()
+{
+    return m_timeRequired;
 }
 
 //******************************************************************************************
@@ -114,12 +146,13 @@ void Job::displayJobDetails()
     printf("Priority           : %d\n", m_priority);
     printf("State              : %d\n", m_state);
     printf("Time required      : %lld ms.\n", m_timeRequired);
+    printf("Time served        : %lld ms.\n", m_timeServed);
     printf("Created at         : %lld\n", m_tsCreated);
     printf("Execution started  : %lld\n", m_tsExecutionStart);
     printf("Execution ended    : %lld\n", m_tsExecutionEnd);
     printf("Waiting time       : %lld ms.\n", getWaitingTime());
     printf("Response time      : %lld ms.\n", getResponseTime());
-    printf("Complete           : %s\n", m_isComplete ? "YES" : "NO");
+    printf("Complete           : %s\n", isJobComplete() ? "YES" : "NO");
 }
 
 //******************************************************************************************
@@ -132,9 +165,43 @@ void Job::displayJobDetails()
 //******************************************************************************************
 void Job::markJobAsStartedExecution()
 {
+    if (m_state == STATE_READY)
+    {
+        m_tsExecutionStart = getCurrentTimestampInMilliseconds();
+        if (isDebugEnabled())
+            printf("Job %lu (Priority: %d, TimeRequired: %lld) started\n", m_jobId, m_priority, m_timeRequired);
+    }
+    else if (m_state == STATE_PAUSED)
+    {
+        if (isDebugEnabled())
+            printf("Job %lu resumed from %lld/%lld (ms.)\n", m_jobId, m_timeServed, m_timeRequired);
+    }
+    else
+    {
+        // DO NOTHING
+    }
+
     m_state = STATE_RUNNING;
-    m_tsExecutionStart = getCurrentTimestampInMilliseconds();
     setWaitingTime(m_tsExecutionStart - m_tsCreated);
+}
+
+//******************************************************************************************
+// @name                    : markJobAsPaused
+//
+// @description             : Updates the state and records the time for which this
+//                            job executed.
+//
+// @param timeServed        : Duration of time (ms) for which this job was executed. 
+//
+// @returns                 : Nothing
+//******************************************************************************************
+void Job::markJobAsPaused(long long timeServed)
+{
+    m_state = STATE_PAUSED;
+    m_timeServed = timeServed;
+
+    if (isDebugEnabled())
+        printf("Job %lu paused %lld/%lld (ms.)\n", m_jobId, m_timeServed, m_timeRequired);
 }
 
 //******************************************************************************************
@@ -149,8 +216,12 @@ void Job::markJobAsComplete()
 {
     m_state = STATE_COMPLETED;
     m_tsExecutionEnd = getCurrentTimestampInMilliseconds();
-    m_isComplete = true;
+    m_timeServed = m_timeRequired;
     setResponseTime(m_tsExecutionEnd - m_tsCreated);
 
-    //displayJobDetails();
+    if (isDebugEnabled())
+    {
+        printf("Job %lu completed\n", m_jobId);
+        //displayJobDetails();
+    }
 }

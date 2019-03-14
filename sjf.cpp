@@ -12,7 +12,7 @@
 //******************************************************************************************
 ShortestJobFirst::ShortestJobFirst(string name) :ProcessScheduler(name)
 {
-    printf("Creating [ %s ] scheduler\n", name.c_str());
+    printf("\nCreating [ %s ] scheduler\n", name.c_str());
 }
 
 //******************************************************************************************
@@ -70,7 +70,7 @@ void ShortestJobFirst::ProcessJobs()
     time_t t2 = time(&t2);
 
     // Process jobs in pending queue continuously
-    while (1)
+    while (!isSimulationComplete())
     {
         // Move all the jobs in ready queue to pending job pool. Thread synchronization
         // is required as m_readyJobPool might be continuously being updated by the
@@ -85,7 +85,7 @@ void ShortestJobFirst::ProcessJobs()
             displayStatsAtInterval(t1, t2);
 
             // Sort the pending job pool with least time required by job to complete in the beginning.
-            m_pendingJobPool.sort([](Job* lhs, Job* rhs) {return lhs->getJobTimeRequired() < rhs->getJobTimeRequired(); });
+            m_pendingJobPool.sort([](Job* lhs, Job* rhs) {return lhs->getJobTimeRemaining() < rhs->getJobTimeRemaining(); });
 
             // Iterate through all the jobs in the list. This list must be sorted
             // at this point of time. So process the job with shortest time to complete
@@ -96,7 +96,7 @@ void ShortestJobFirst::ProcessJobs()
                 /*printf("Sorted pending job list: \n");
                 for (auto it = m_pendingJobPool.begin(); it != m_pendingJobPool.end(); it++)
                 {
-                    printf("%lld  ", (*it)->getJobTimeRequired());
+                    printf("%lld  ", (*it)->getJobTimeRemaining());
                 }
                 printf("\n");*/
 

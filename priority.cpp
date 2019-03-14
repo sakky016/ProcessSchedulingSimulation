@@ -12,7 +12,7 @@
 //******************************************************************************************
 PriorityScheduling::PriorityScheduling(string name) :ProcessScheduler(name)
 {
-    printf("Creating [ %s ] scheduler\n", name.c_str());
+    printf("\nCreating [ %s ] scheduler\n", name.c_str());
 }
 
 //******************************************************************************************
@@ -54,7 +54,7 @@ void PriorityScheduling::ProcessJobs()
     time_t t2 = time(&t2);
 
     // Process jobs in pending queue continuously
-    while (1)
+    while (!isSimulationComplete())
     {
         // Move all the jobs in ready queue to pending job pool. Thread synchronization
         // is required as m_readyJobPool might be continuously being updated by the
@@ -79,7 +79,7 @@ void PriorityScheduling::ProcessJobs()
                 /*printf("Sorted pending job list: \n");
                 for (auto it = m_pendingJobPool.begin(); it != m_pendingJobPool.end(); it++)
                 {
-                    printf("%lld  ", (*it)->getJobTimeRequired());
+                    printf("%lld  ", (*it)->getJobTimeRemaining());
                 }
                 printf("\n");*/
 

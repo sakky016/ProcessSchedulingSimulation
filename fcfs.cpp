@@ -12,7 +12,7 @@
 //******************************************************************************************
 FirstComeFirstServed::FirstComeFirstServed(string name):ProcessScheduler(name)
 {
-    printf("Creating [ %s ] scheduler\n", name.c_str());
+    printf("\nCreating [ %s ] scheduler\n", name.c_str());
 }
 
 //******************************************************************************************
@@ -55,7 +55,7 @@ void FirstComeFirstServed::ProcessJobs()
     time_t t2 = time(&t2);
 
     // Process jobs in pending queue continuously
-    while (1)
+    while (!isSimulationComplete())
     {
         // Move all the jobs in ready queue to pending job pool. Thread synchronization
         // is required as m_readyJobPool might be continuously being updated by the

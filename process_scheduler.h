@@ -47,7 +47,8 @@ class ProcessScheduler
 {
 private:
     long long                               m_tsCreated;                  // timestamp value when this scheduler was created
-    int                                     m_displayInterval;
+    int                                     m_displayInterval;            // Interval after which stats for scheduler will be displayed
+    bool                                    m_simulationComplete;         // Mark end of simulation
 
 protected:
     mutex                                   m_schedulerMutex;
@@ -72,6 +73,9 @@ public:
                                                                           // adds the job to its queue.
     void setDisplayInterval(int interval);
     int getDisplayInterval();
+
+    bool isSimulationComplete() { return m_simulationComplete; }
+    void setSimulationComplete(bool val);
 
     void displayStatsAtInterval(time_t & t1, time_t & t2);
     void displayStats();
