@@ -165,7 +165,6 @@ void jobCreationThread(ProcessScheduler *scheduler)
     // Display final statistics
     scheduler->displayStats();
     scheduler->setSimulationComplete(true);
-    printf("** SIMULATION COMPLETE **\n");
 }
 
 //******************************************************************************************
@@ -230,6 +229,10 @@ void doSimulation(ProcessScheduler *scheduler, int simulationIndex)
     printf("| SIMULATION #%d: %s\n", simulationIndex+1, scheduler->getSchedulerName().c_str());
     printf("+------------------------------------------------------------------------+\n");
 
+    time_t startTime = time(&startTime);
+    char *startTimeStr = ctime(&startTime);
+    printf("Started: %s\n", startTimeStr);
+
     // Display jobs being created for this simulation
     if (JOBS_TO_CREATE >= 0)
     {
@@ -271,6 +274,11 @@ void doSimulation(ProcessScheduler *scheduler, int simulationIndex)
 
     // Wait for Job creation thread to complete.
     jobCreationThreadId.join();
+
+    time_t endTime = time(&endTime);
+    char *endTimeStr = ctime(&endTime);
+    printf("Ended: %s\n", endTimeStr);
+    printf("** SIMULATION COMPLETE **\n");
 }
 
 /*-----------------------------------------------------------------------------------------------------
