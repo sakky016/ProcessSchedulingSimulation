@@ -6,6 +6,7 @@
 #include "fcfs.h"
 #include "sjf.h"
 #include "priority.h"
+#include "priority_ageing.h"
 #include "round_robin.h"
 #include "job.h"
 #include "process_scheduler.h"
@@ -19,6 +20,7 @@ typedef enum
 {
     SCHEDULING_FCFS,
     SCHEDULING_PRIORITY,
+    SCHEDULING_PRIORITY_WITH_AGEING,
     SCHEDULING_SJF,
     SCHEDULING_ROUND_ROBIN,
     SCHEDULING_MULTI_LEVEL_FEEDBACK,
@@ -36,28 +38,27 @@ typedef enum
 const bool SIMULATE_ALL_SCHEDULING_ALGORITHMS = true;
 
 // Scheduling algorithm to use. Refer to enum 'schedulingAlgorithm_en' above.
-// Implemented algos- SCHEDULING_FCFS, SCHEDULING_SJF, SCHEDULING_PRIORITY, SCHEDULING_ROUND_ROBIN
-const int SCHEDULING_ALGORITHM = SCHEDULING_PRIORITY;
+const int SCHEDULING_ALGORITHM = SCHEDULING_ROUND_ROBIN;
 
 // Time quantum (in milliseconds) to be used. This is used in case of Round-Robin scheduling
 // algorithm. This is the maximum time window a job will be allocated for execution.
 // If the job completes in this duration, then the next job is processed. Otherwise,
 // the job is paused and its state is saved. The scheduler will process other jobs for this
 // time quantum again and return back to process this job again.
-const long long TIME_QUANTUM = 500;
-
-// This parameter identifies the jobs whose response time period exceeds the 
-// permissible value in comparison to its time required for completion. So for
-// instance if a job requires 200ms. to complete and if the response time
-// threshold is 2, then response time threshold for this job is 400ms.
-const int RESPONSE_TIME_THRESHOLD = 2; 
+const long long TIME_QUANTUM = MAX_TIME_REQUIRED / 2;
 
 // Number of jobs for which simulation has to be done.
 // use '-1' to create jobs continuously.
 const long int JOBS_TO_CREATE = 1000;
 
+// This parameter identifies the jobs whose response time period exceeds the 
+// permissible value in comparison to its time required for completion. So for
+// instance if a job requires 200ms. to complete and if the response time
+// threshold is 2, then response time threshold for this job is 400ms.
+const int RESPONSE_TIME_THRESHOLD = JOBS_TO_CREATE;
+
 // Show details of job running status
-const bool SHOW_JOB_STATUS = false;
+const bool SHOW_JOB_STATUS = true;
 
 // Use random sleep duration for creation thread
 const bool USE_RANDOM_JOB_CREATION_SLEEP = false;
@@ -174,7 +175,7 @@ void jobCreationThread(ProcessScheduler *scheduler)
 //
 // @param algo_index        : algorithm index
 //
-// @returns                 : Scheduler object
+// @returns                 : Scheduler object 
 //********************************************************************************************
 ProcessScheduler* getScheduler(schedulingAlgorithm_en algo_index)
 {
@@ -188,6 +189,9 @@ ProcessScheduler* getScheduler(schedulingAlgorithm_en algo_index)
     case SCHEDULING_PRIORITY:
         scheduler = new PriorityScheduling("Priority Scheduling");
         break;
+    case SCHEDULING_PRIORITY_WITH_AGEING:
+        scheduler = new PriorityAgeingScheduling("Priority Scheduling with Ageing");
+        break;
     case SCHEDULING_SJF:
         scheduler = new ShortestJobFirst("Shortest Job First");
         break;
@@ -197,11 +201,10 @@ ProcessScheduler* getScheduler(schedulingAlgorithm_en algo_index)
     case SCHEDULING_MULTI_LEVEL_FEEDBACK:
         printf("SCHEDULING_MULTI_LEVEL_FEEDBACK: Not implemented yet\n");
         //scheduler = new MultiLevelFeedback("Multi Level Feedback");
-        exit(0);
         break;
     default:
         printf("ERROR: Invalid Scheduling algorithm specified!\n");
-        exit(0);
+        return false;
     }
 
     return scheduler;
@@ -214,14 +217,15 @@ ProcessScheduler* getScheduler(schedulingAlgorithm_en algo_index)
 //
 // @param scheduler         : scheduler object
 //
-// @returns                 : Nothing
+// @returns                 : true if simulation executed successfully,
+//                            false otherwise
 //********************************************************************************************
-void doSimulation(ProcessScheduler *scheduler, int simulationIndex)
+bool doSimulation(ProcessScheduler *scheduler, int simulationIndex)
 {
     if (!scheduler)
     {
         printf("ERROR: No scheduler found!\n");
-        exit(0);
+        return false;
     }
 
     printf("\n");
@@ -236,14 +240,14 @@ void doSimulation(ProcessScheduler *scheduler, int simulationIndex)
     // Display jobs being created for this simulation
     if (JOBS_TO_CREATE >= 0)
     {
-        printf("Running simulation for %ld jobs\n", JOBS_TO_CREATE);
+        printf("Running simulation for          : %ld jobs\n", JOBS_TO_CREATE);
     }
     else
     {
         printf("Running simulation jobs being created continuously\n");
     }
 
-    printf("Using Response Time threshold: %d\n", RESPONSE_TIME_THRESHOLD);
+    printf("Using Response Time threshold   : %d\n", RESPONSE_TIME_THRESHOLD);
 
     if (USE_RANDOM_JOB_CREATION_SLEEP)
     {
@@ -263,7 +267,7 @@ void doSimulation(ProcessScheduler *scheduler, int simulationIndex)
     else
     {
         printf("Scheduler stats will be shown at the end of the simulation.\n");
-        printf("Running simulation...\n");
+        printf("Running simulation...\n\n");
     }
 
     // Spawn a thread to create jobs randomly
@@ -275,10 +279,15 @@ void doSimulation(ProcessScheduler *scheduler, int simulationIndex)
     // Wait for Job creation thread to complete.
     jobCreationThreadId.join();
 
+    // Destroy the scheduler
+    delete scheduler;
+
     time_t endTime = time(&endTime);
     char *endTimeStr = ctime(&endTime);
     printf("Ended: %s\n", endTimeStr);
-    printf("** SIMULATION COMPLETE **\n");
+    printf("** SIMULATION COMPLETE **\n\n");
+
+    return true;
 }
 
 /*-----------------------------------------------------------------------------------------------------
@@ -306,6 +315,7 @@ int main()
 {
     ProcessScheduler *scheduler = nullptr;
     int totalSimulations = 0;
+    bool simulationSuccessful = false;
 
     // Default - the one specified by configuration
     schedulingAlgorithm_en schedulingAlgorithm = static_cast<schedulingAlgorithm_en>(SCHEDULING_ALGORITHM);
@@ -313,20 +323,20 @@ int main()
     if (SIMULATE_ALL_SCHEDULING_ALGORITHMS == true)
     {
         printf("Simulating all the available scheduling algorithms...\n");
-        for (int algo_index = 0; algo_index < SCHEDULING_MAX - 1; algo_index++) //TODO: Update once all algos done
+        for (int algo_index = 0; algo_index < SCHEDULING_MAX; algo_index++)
         {
             scheduler = getScheduler(static_cast<schedulingAlgorithm_en>(algo_index));
-            doSimulation(scheduler, totalSimulations);
-            scheduler->~ProcessScheduler();
-            totalSimulations++;
+            simulationSuccessful = doSimulation(scheduler, totalSimulations);
+            if (simulationSuccessful)
+                totalSimulations++;
         }
     }
     else
     {
         scheduler = getScheduler(schedulingAlgorithm);
-        doSimulation(scheduler, totalSimulations);
-        scheduler->~ProcessScheduler();
-        totalSimulations++;
+        simulationSuccessful = doSimulation(scheduler, totalSimulations);
+        if (simulationSuccessful)
+            totalSimulations++;
     }
     
     printf("\n**** Completed %d simulation(s)\n", totalSimulations);

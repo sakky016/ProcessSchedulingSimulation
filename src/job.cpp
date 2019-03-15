@@ -171,12 +171,12 @@ void Job::markJobAsStartedExecution()
     {
         m_tsExecutionStart = getCurrentTimestampInMilliseconds();
         if (isDebugEnabled())
-            printf("Job %lu (Priority: %d, TimeRequired: %lld) started\n", m_jobId, m_priority, m_timeRequired);
+            printf("Job %lu (Priority: %d, TimeRequired: %.2lf s.) started\n", m_jobId, m_priority, m_timeRequired / (double)1000);
     }
     else if (m_state == STATE_PAUSED)
     {
         if (isDebugEnabled())
-            printf("Job %lu resumed from %lld/%lld (ms.)\n", m_jobId, m_timeServed, m_timeRequired);
+            printf("Job %lu resumed from %.2lf/%.2lf (s.)\n", m_jobId, m_timeServed / (double)1000, m_timeRequired / (double)1000);
     }
     else
     {
@@ -203,7 +203,7 @@ void Job::markJobAsPaused(long long timeServed)
     m_timeServed = timeServed;
 
     if (isDebugEnabled())
-        printf("Job %lu paused %lld/%lld (ms.)\n", m_jobId, m_timeServed, m_timeRequired);
+        printf("Job %lu paused %.2lf/%.2lf (s.)\n", m_jobId, m_timeServed / (double)1000, m_timeRequired / (double)1000);
 }
 
 //******************************************************************************************
@@ -224,7 +224,7 @@ void Job::markJobAsComplete()
     if (isDebugEnabled())
     {
         printf("Job %lu completed\n", m_jobId);
-        displayJobDetails();
+        //displayJobDetails();
     }
 }
 

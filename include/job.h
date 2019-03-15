@@ -11,7 +11,7 @@ using namespace std;
 //---------------------------------------------------------------------------------------------------
 const int JOB_PRIORITY_LOWEST      = 512;       // Lowest priority
 const int JOB_PRIORITY_HIGHEST     = 0;         // Highest priority
-const long long MAX_TIME_REQUIRED = 1000;       // Maximum time (ms) that a task can need to complete
+const long long MAX_TIME_REQUIRED = 10000;      // Maximum time (ms) that a task can need to complete
 long long getCurrentTimestampInMilliseconds();
 //---------------------------------------------------------------------------------------------------
 // Enums and structures
@@ -57,14 +57,18 @@ public:
     bool isDebugEnabled() { return m_showJobStatus; }
 
     unsigned long getJobId() {return m_jobId;}
+
+    long long getJobTimeCreated() { return m_tsCreated; }
+
     unsigned int getJobPriority() { return m_priority; }
+    void setJobPriority(unsigned int priority) { m_priority = priority; }
 
     jobState_en getJobState() { return m_state;}
     void setJobState(jobState_en state) { m_state = state; }
 
     long long getJobTimeRemaining();
-    long long getJobTimeRequired();
 
+    long long getJobTimeRequired();
     void setJobTimeRequired(long long timeRequired) { m_timeRequired = timeRequired; }
 
     bool isJobComplete() { return (m_state == STATE_COMPLETED); }

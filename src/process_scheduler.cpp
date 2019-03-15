@@ -145,9 +145,9 @@ void ProcessScheduler::displayStats()
     printf("Pending jobs                            : %u\n", m_pendingJobPool.size());
     printf("Completed jobs                          : %u\n", m_completedJobPool.size());
     printf("Job inflow rate                         : %lf per second.\n", getJobInflowRate());
-    printf("Avg time required by job to complete    : %lf ms.\n", getAverageTimeRequired());
-    printf("Average waiting time                    : %lf ms.\n", getAverageWaitingTime());// / (double)1000);
-    printf("Average response time                   : %lf ms.\n", getAverageResponseTime());// / (double)1000);
+    printf("Avg time required by job to complete    : %.2lf seconds\n", getAverageTimeRequired() / (double)1000);
+    printf("Average waiting time                    : %.2lf seconds\n", getAverageWaitingTime() / (double)1000);
+    printf("Average response time                   : %.2lf seconds\n", getAverageResponseTime() / (double)1000);
     printf("Response threshold exceeded for         : %.2lf %% jobs\n", getResponseThresholdExceededJobs());
     printf("Throughput                              : %lf per second.\n", getThroughput());
     printf("+------------------------------------------------------------------------+\n\n");
